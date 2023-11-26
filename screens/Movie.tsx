@@ -1,11 +1,17 @@
-import {ActivityIndicator, Dimensions, useColorScheme} from "react-native";
+import {
+  ActivityIndicator,
+  Dimensions,
+  RefreshControl,
+  useColorScheme,
+} from "react-native";
 import {NativeStackScreenProps} from "@react-navigation/native-stack";
 import styled from "styled-components/native";
 import Swiper from "react-native-swiper";
 import {useEffect, useState} from "react";
 import Slide from "../components/Slide";
 import Poster from "../components/Poster";
-import Votes from "../components/Votes";
+import Trending from "../components/trending/Trending";
+import Upcomming from "../components/upcomming/Upcomming";
 
 interface IMovieData {
   adult: boolean;
@@ -37,24 +43,29 @@ const LoaderView = styled.View`
   justify-content: center;
   align-items: center;
 `;
+const ListCont = styled.View`
+  margin-bottom: 40px;
+`;
 const ListTitle = styled.Text`
   color: white;
   font-size: 20px;
   font-weight: 600;
   margin-left: 30px;
 `;
-const TrendMovie = styled.View`
-  margin-right: 15px;
-  align-items: center;
-`;
-const TrendTitle = styled.Text`
+
+const CommingContTitle = styled.Text`
   color: white;
-  margin-top: 7px;
+  font-size: 20px;
+  font-weight: 600;
+  margin-left: 30px;
+  margin-bottom: 20px;
 `;
+
 const API_KEY = "659fcb8c58aae2c9fa0ee430456f44bd";
 
 const Movie: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   const isDark = useColorScheme() === "dark";
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(true);
   const [nowPlaying, setNowPlaying] = useState<IMovieData[]>([]);
   const [upComming, setUpComming] = useState<IMovieData[]>([]);
@@ -62,7 +73,7 @@ const Movie: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   const getTrending = async () => {
     const {results} = await (
       await fetch(
-        `https://api.themoviedb.org/3/trending/movie/week?api_key=${API_KEY}&language=kr`
+        `https://api.themoviedb.org/3/trending/movie/week?api_key=${API_KEY}&language=ko`
       )
     ).json();
     setTrending(results);
@@ -70,7 +81,7 @@ const Movie: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   const getNowPlaying = async () => {
     const {results} = await (
       await fetch(
-        `https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=kr&page=1&region=kr`
+        `https://api.themoviedb.org/3/movie/now_playing?api_key=${API_KEY}&language=ko&page=1&region=kr`
       )
     ).json();
     setNowPlaying(results);
@@ -78,7 +89,7 @@ const Movie: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   const getUpComming = async () => {
     const {results} = await (
       await fetch(
-        `https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=kr&page=1&region=kr`
+        `https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=ko&page=1&region=kr`
       )
     ).json();
     setUpComming(results);
@@ -97,12 +108,21 @@ const Movie: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   useEffect(() => {
     getData();
   }, []);
+  const activeRefresh = async () => {
+    setRefresh(true);
+    await getData();
+    setRefresh(false);
+  };
   return loading ? (
     <LoaderView>
       <ActivityIndicator size="large" />
     </LoaderView>
   ) : (
-    <ScrollView>
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={refresh} onRefresh={activeRefresh} />
+      }
+    >
       <Swiper
         loop
         horizontal
@@ -127,23 +147,35 @@ const Movie: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
           />
         ))}
       </Swiper>
-      <ListTitle>Trending Movies</ListTitle>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{paddingLeft: 30, paddingVertical: 20}}
-      >
-        {trending.map((trend) => (
-          <TrendMovie key={trend.id}>
-            <Poster path={trend.poster_path} />
-            <TrendTitle>
-              {trend.original_title.slice(0, 13)}
-              {trend.original_title.length > 13 ? "..." : null}
-            </TrendTitle>
-            <Votes rates={trend.vote_average} />
-          </TrendMovie>
+      <ListCont>
+        <ListTitle>Trending Movies</ListTitle>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{paddingLeft: 30, paddingVertical: 20}}
+        >
+          {trending.map((trend) => (
+            <Trending
+              key={trend.id}
+              backdropPath={trend.poster_path}
+              originalTitle={trend.original_title}
+              voteAverage={trend.vote_average}
+            />
+          ))}
+        </ScrollView>
+      </ListCont>
+      <ListCont>
+        <CommingContTitle>Comming Soon</CommingContTitle>
+        {upComming.map((come) => (
+          <Upcomming
+            key={come.id}
+            posterPath={come.poster_path}
+            originalTitle={come.original_title}
+            releaseDate={come.release_date}
+            overView={come.overview}
+          />
         ))}
-      </ScrollView>
+      </ListCont>
     </ScrollView>
   );
 };

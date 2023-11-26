@@ -8,6 +8,10 @@ interface IMovieRates {
   rates: number;
 }
 const Votes: React.FC<IMovieRates> = ({rates}) => {
-  return <VotesTxt>⭐️{rates.toFixed(1)} / 10</VotesTxt>;
+  return (
+    <VotesTxt>
+      {rates > 0 ? `⭐️${rates.toFixed(1)} / 10` : "Comming Soon"}
+    </VotesTxt>
+  );
 };
 export default Votes;

@@ -61,7 +61,7 @@ const Slide: React.FC<ISlide> = ({
           <Column>
             <Title>{movieTitle}</Title>
             <OverView>{overView.slice(0, 40)}...</OverView>
-            {voteAverage > 0 ? <Votes rates={voteAverage} /> : null}
+            <Votes rates={voteAverage} />
           </Column>
         </MovieCont>
       </BlurView>
