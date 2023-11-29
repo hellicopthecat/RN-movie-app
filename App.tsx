@@ -15,13 +15,11 @@ import Stack from "./navigation/Stack";
 import RootNav from "./navigation/RootNav";
 import {darkTheme, lightTheme} from "./theme";
 import {ThemeProvider} from "styled-components";
+import {QueryClient, QueryClientProvider} from "react-query";
 
 export default function App() {
   const isDark = useColorScheme() === "dark";
   const [ready, setReady] = useState(false);
-  const [assets] = useAssets([
-    "https://blog.kakaocdn.net/dn/chdzI0/btqWU8aSuLk/zjGVjFd9vLaiFqM4S9pPe1/img.png",
-  ]);
   const [fontLoaded] = useFonts(Ionicons.font);
   useEffect(() => {
     async function prepare() {
@@ -42,15 +40,18 @@ export default function App() {
     }
   }, [ready]);
 
-  if (!ready || !assets || !fontLoaded) {
+  if (!ready || !fontLoaded) {
     return null;
   }
+  const queryClient = new QueryClient();
   return (
-    <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
-      <NavigationContainer onReady={onLayoutRootView}>
-        <RootNav />
-      </NavigationContainer>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+        <NavigationContainer onReady={onLayoutRootView}>
+          <RootNav />
+        </NavigationContainer>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 

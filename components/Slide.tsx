@@ -1,9 +1,11 @@
-import {StyleSheet, useColorScheme} from "react-native";
+import {StyleSheet, TouchableOpacity, useColorScheme} from "react-native";
 import styled from "styled-components/native";
 import {BlurView} from "expo-blur";
 import {makeImagePath} from "../utils";
 import Poster from "./Poster";
 import Votes from "./Votes";
+import {useNavigation} from "@react-navigation/native";
+import {IMovieData} from "../types/movietype";
 
 const Wrapper = styled.View`
   flex: 1;
@@ -34,17 +36,29 @@ interface ISlide {
   backdropPath: string;
   overView: string;
   posterPath: string;
-  movieTitle: string;
+  originalTitle: string;
   voteAverage: number;
+  fullData: IMovieData;
 }
 const Slide: React.FC<ISlide> = ({
   backdropPath,
   posterPath,
-  movieTitle,
+  originalTitle,
   voteAverage,
   overView,
+  fullData,
 }) => {
   const isDark = useColorScheme() === "dark";
+  const navigation = useNavigation();
+  const goToDetail = () => {
+    //@ts-ignore
+    navigation.navigate("Stack", {
+      screen: "Detail",
+      params: {
+        ...fullData,
+      },
+    });
+  };
   return (
     <Wrapper style={{backgroundColor: "red"}}>
       <BgImg
@@ -56,14 +70,16 @@ const Slide: React.FC<ISlide> = ({
         intensity={50}
         tint={isDark ? "dark" : "light"}
       >
-        <MovieCont>
-          <Poster path={posterPath} />
-          <Column>
-            <Title>{movieTitle}</Title>
-            <OverView>{overView.slice(0, 40)}...</OverView>
-            <Votes rates={voteAverage} />
-          </Column>
-        </MovieCont>
+        <TouchableOpacity onPress={goToDetail}>
+          <MovieCont>
+            <Poster path={posterPath} />
+            <Column>
+              <Title>{originalTitle}</Title>
+              <OverView>{overView.slice(0, 40)}...</OverView>
+              <Votes rates={voteAverage} />
+            </Column>
+          </MovieCont>
+        </TouchableOpacity>
       </BlurView>
     </Wrapper>
   );

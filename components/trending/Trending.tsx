@@ -1,9 +1,11 @@
 import styled from "styled-components/native";
 import Poster from "../Poster";
 import Votes from "../Votes";
+import {useNavigation} from "@react-navigation/native";
+import {TouchableOpacity} from "react-native";
+import {IMovieData, ITvData} from "../../types/movietype";
 
 const TrendMovie = styled.View`
-  margin-right: 15px;
   align-items: center;
 `;
 const TrendTitle = styled.Text`
@@ -14,21 +16,35 @@ interface ITrend {
   backdropPath: string;
   originalTitle: string;
   voteAverage: number;
+  fullData: IMovieData | ITvData;
 }
 const Trending: React.FC<ITrend> = ({
   backdropPath,
   originalTitle,
   voteAverage,
+  fullData,
 }) => {
+  const navigation = useNavigation();
+  const goToDetail = () => {
+    //@ts-ignore
+    navigation.navigate("Stack", {
+      screen: "Detail",
+      params: {
+        ...fullData,
+      },
+    });
+  };
   return (
-    <TrendMovie>
-      <Poster path={backdropPath} />
-      <TrendTitle>
-        {originalTitle.slice(0, 13)}
-        {originalTitle.length > 13 ? "..." : null}
-      </TrendTitle>
-      <Votes rates={voteAverage} />
-    </TrendMovie>
+    <TouchableOpacity onPress={goToDetail}>
+      <TrendMovie>
+        <Poster path={backdropPath} />
+        <TrendTitle>
+          {originalTitle.slice(0, 13)}
+          {originalTitle.length > 13 ? "..." : null}
+        </TrendTitle>
+        <Votes rates={voteAverage} />
+      </TrendMovie>
+    </TouchableOpacity>
   );
 };
 export default Trending;

@@ -1,60 +1,33 @@
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import {Text, TouchableOpacity, View} from "react-native";
+import {useColorScheme} from "react-native";
+import Detail from "../screens/Detail";
 
-const ScreenOne = ({navigation: {navigate}}) => (
-  <View>
-    <TouchableOpacity onPress={() => navigate("two")}>
-      <Text>screen one</Text>
-    </TouchableOpacity>
-  </View>
-);
-const ScreenTwo = ({navigation: {navigate}}) => (
-  <View>
-    <TouchableOpacity onPress={() => navigate("three")}>
-      <Text>screen two</Text>
-    </TouchableOpacity>
-  </View>
-);
-const ScreenThree = ({navigation: {goBack, setOptions, navigate}}) => (
-  <View>
-    <TouchableOpacity onPress={() => setOptions({title: "hihi"})}>
-      <Text>Touch me</Text>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={() => navigate("one")}>
-      <Text>Go NO.1</Text>
-    </TouchableOpacity>
-    <TouchableOpacity onPress={() => goBack()}>
-      <Text>go Back</Text>
-    </TouchableOpacity>
-  </View>
-);
+import {
+  ACCCENT_COLOR,
+  DARK_COLOR,
+  LIGHT_COLOR,
+  NONSELECT_COLOR,
+} from "../color";
 const NativeStack = createNativeStackNavigator();
 
 const Stack = () => {
+  const isDark = useColorScheme() === "dark";
   return (
     <NativeStack.Navigator
       screenOptions={{
         headerBackTitleVisible: false,
-        headerTintColor: "pink",
+        headerStyle: {
+          backgroundColor: isDark ? DARK_COLOR : LIGHT_COLOR,
+        },
+        headerTitleStyle: {
+          color: isDark ? ACCCENT_COLOR : NONSELECT_COLOR,
+        },
+        headerTintColor: isDark ? ACCCENT_COLOR : NONSELECT_COLOR,
         presentation: "formSheet",
         animation: "fade",
       }}
     >
-      <NativeStack.Screen
-        name="one"
-        component={ScreenOne}
-        options={{title: "1"}}
-      ></NativeStack.Screen>
-      <NativeStack.Screen
-        name="two"
-        component={ScreenTwo}
-        options={{title: "2"}}
-      ></NativeStack.Screen>
-      <NativeStack.Screen
-        name="three"
-        component={ScreenThree}
-        options={{presentation: "modal"}}
-      ></NativeStack.Screen>
+      <NativeStack.Screen name="Detail" component={Detail} />
     </NativeStack.Navigator>
   );
 };
